@@ -1,6 +1,7 @@
 package br.com.criandoapi.projeto;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -17,8 +18,8 @@ import java.util.Optional;
  * - DELETE /usuarios/{id}: Exclui um usuário pelo ID.
  */
 @RestController
-@CrossOrigin("*")
-@RequestMapping("/usuarios")
+@CrossOrigin("*") // Permite acesso de qualquer origem (CORS)
+@RequestMapping("/usuarios") // Define o caminho base para todos os endpoints deste controlador
 public class UsuarioController {
 
     @Autowired
@@ -30,7 +31,7 @@ public class UsuarioController {
      * Método HTTP: GET
      * Caminho: /usuarios
      *
-     * @return List<Usuario> - Lista de usuários cadastrados.
+     * @return ResponseEntity<List<Usuario>> - Resposta HTTP contendo a lista de usuários e o status 200 (OK).
      *
      * Exemplo de resposta:
      * [
@@ -51,8 +52,9 @@ public class UsuarioController {
      * ]
      */
     @GetMapping
-    public List<Usuario> listaUsuarios() {
-        return (List<Usuario>) dao.findAll();
+    public ResponseEntity<List<Usuario>> listaUsuarios() {
+        List<Usuario> lista = (List<Usuario>) dao.findAll(); // Busca todos os usuários no banco de dados
+        return ResponseEntity.status(200).body(lista); // Retorna a lista com status HTTP 200 (OK)
     }
 
     /**
@@ -62,7 +64,7 @@ public class UsuarioController {
      * Caminho: /usuarios
      *
      * @param usuario Objeto `Usuario` contendo os dados do novo usuário.
-     * @return Usuario - O usuário criado com o ID gerado.
+     * @return ResponseEntity<Usuario> - Resposta HTTP contendo o usuário criado e o status 201 (Created).
      *
      * Exemplo de requisição:
      * {
@@ -73,18 +75,20 @@ public class UsuarioController {
      * }
      */
     @PostMapping
-    public Usuario criarUsuario(@RequestBody Usuario usuario) {
-        Usuario usuarioNovo = dao.save(usuario);
-        return usuarioNovo;
+    public ResponseEntity<Usuario> criarUsuario(@RequestBody Usuario usuario) {
+        Usuario usuarioNovo = dao.save(usuario); // Salva o novo usuário no banco de dados
+        return ResponseEntity.status(201).body(usuarioNovo); // Retorna o usuário criado com status HTTP 201 (Created)
     }
 
     /**
      * Atualiza um usuário existente com os dados fornecidos no corpo da requisição.
+     *
      * Método HTTP: PUT
      * Caminho: /usuarios
      *
      * @param usuario Objeto `Usuario` contendo os dados atualizados.
-     * @return Usuario - O usuário atualizado.
+     * @return ResponseEntity<Usuario> - Resposta HTTP contendo o usuário atualizado e o status 201 (Created).
+     *
      * Exemplo de requisição:
      * {
      *   "id": 1,
@@ -95,28 +99,26 @@ public class UsuarioController {
      * }
      */
     @PutMapping
-    public Usuario editarUsuario(@RequestBody Usuario usuario) {
-        Usuario usuarioNovo = dao.save(usuario);
-        return usuarioNovo;
+    public ResponseEntity<Usuario> editarUsuario(@RequestBody Usuario usuario) {
+        Usuario usuarioNovo = dao.save(usuario); // Atualiza o usuário no banco de dados
+        return ResponseEntity.status(201).body(usuarioNovo); // Retorna o usuário atualizado com status HTTP 201 (Created)
     }
 
     /**
      * Exclui um usuário pelo ID fornecido.
+     *
      * Método HTTP: DELETE
      * Caminho: /usuarios/{id}
      *
      * @param id ID do usuário a ser excluído.
-     * @return Usuario - O usuário excluído ou `null` se o usuário não for encontrado.
+     * @return ResponseEntity<?> - Resposta HTTP com status 204 (No Content) indicando que o usuário foi excluído.
+     *
      * Exemplo de requisição:
      * DELETE /usuarios/1
      */
     @DeleteMapping("/{id}")
-    public Usuario excluirUsuario(@PathVariable Integer id) {
-        Optional<Usuario> usuario = dao.findById(id);
-        if (usuario.isPresent()) {
-            dao.deleteById(id);
-            return usuario.get();
-        }
-        return null; // Retorna null se o usuário não for encontrado.
+    public ResponseEntity<?> excluirUsuario(@PathVariable Integer id) {
+        dao.deleteById(id); // Exclui o usuário pelo ID
+        return ResponseEntity.status(204).build(); // Retorna status HTTP 204 (No Content)
     }
 }
