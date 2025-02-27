@@ -1,5 +1,6 @@
 package br.com.criandoapi.projeto;
 
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.repository.CrudRepository;
 
 /**
@@ -8,7 +9,7 @@ import org.springframework.data.repository.CrudRepository;
  * param <Usuario> Tipo da entidade gerenciada por este repositório.
  * param <Integer> Tipo da chave primária da entidade `Usuario`.
  */
-public interface IUsuario extends CrudRepository<Usuario, Integer> {
+public interface IUsuario extends JpaRepository<Usuario, Integer> {
 
     /**
      * Herda métodos CRUD básicos do `CrudRepository`, como:

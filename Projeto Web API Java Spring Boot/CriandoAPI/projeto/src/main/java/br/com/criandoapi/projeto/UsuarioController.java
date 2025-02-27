@@ -8,32 +8,43 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * Controlador REST para manipulação de recursos relacionados à entidade `Usuario`.
- * Esta classe expõe endpoints HTTP para operações de CRUD (Create, Read, Update, Delete) de usuários.
+ * Controlador REST para manipulação de operações CRUD da entidade Usuario.
+ * Expõe endpoints para criação, leitura, atualização e exclusão de usuários.
  *
- * Endpoints:
- * - GET /usuarios: Retorna uma lista de todos os usuários.
- * - POST /usuarios: Cria um novo usuário.
- * - PUT /usuarios: Atualiza um usuário existente.
- * - DELETE /usuarios/{id}: Exclui um usuário pelo ID.
+ * <p>Endpoints disponíveis:</p>
+ * <ul>
+ *   <li>GET /usuarios - Lista todos os usuários</li>
+ *   <li>POST /usuarios - Cria um novo usuário</li>
+ *   <li>PUT /usuarios - Atualiza ou cria um usuário (com ID especificado)</li>
+ *   <li>DELETE /usuarios/{id} - Exclui um usuário pelo ID</li>
+ * </ul>
+ *
+ * <p>Permite acesso CORS de qualquer origem.</p>
  */
 @RestController
-@CrossOrigin("*") // Permite acesso de qualquer origem (CORS)
-@RequestMapping("/usuarios") // Define o caminho base para todos os endpoints deste controlador
+@CrossOrigin("*")
+@RequestMapping("/usuarios")
 public class UsuarioController {
 
     @Autowired
-    private IUsuario dao; // Repositório para operações de banco de dados relacionadas à entidade Usuario.
+    private IUsuario dao; // Repositório direto para operações de banco de dados
+
+    private final UsuarioService usuarioService; // Camada de serviço para regras de negócio
 
     /**
-     * Retorna uma lista de todos os usuários cadastrados no sistema.
+     * Construtor para injeção de dependência do serviço.
      *
-     * Método HTTP: GET
-     * Caminho: /usuarios
+     * param usuarioService Serviço contendo a lógica de negócio para usuários
+     */
+    public UsuarioController(UsuarioService usuarioService) {
+        this.usuarioService = usuarioService;
+    }
+
+    /**
+     * Recupera todos os usuários cadastrados.
      *
-     * @return ResponseEntity<List<Usuario>> - Resposta HTTP contendo a lista de usuários e o status 200 (OK).
-     *
-     * Exemplo de resposta:
+     * <p><b>Exemplo de resposta:</b></p>
+     * <pre>
      * [
      *   {
      *     "id": 1,
@@ -41,84 +52,82 @@ public class UsuarioController {
      *     "email": "joao@email.com",
      *     "senha": "senha123",
      *     "telefone": "(11) 99999-9999"
-     *   },
-     *   {
-     *     "id": 2,
-     *     "nome": "Maria Souza",
-     *     "email": "maria@email.com",
-     *     "senha": "senha456",
-     *     "telefone": "(11) 88888-8888"
      *   }
      * ]
+     * </pre>
+     *
+     * return ResponseEntity com lista de usuários e status HTTP 200
      */
     @GetMapping
     public ResponseEntity<List<Usuario>> listaUsuarios() {
-        List<Usuario> lista = (List<Usuario>) dao.findAll(); // Busca todos os usuários no banco de dados
-        return ResponseEntity.status(200).body(lista); // Retorna a lista com status HTTP 200 (OK)
+        return ResponseEntity.status(200).body(usuarioService.listarUsuario());
     }
 
     /**
-     * Cria um novo usuário com os dados fornecidos no corpo da requisição.
+     * Cria um novo usuário com os dados fornecidos.
      *
-     * Método HTTP: POST
-     * Caminho: /usuarios
-     *
-     * @param usuario Objeto `Usuario` contendo os dados do novo usuário.
-     * @return ResponseEntity<Usuario> - Resposta HTTP contendo o usuário criado e o status 201 (Created).
-     *
-     * Exemplo de requisição:
+     * <p><b>Exemplo de requisição:</b></p>
+     * <pre>
      * {
      *   "nome": "Carlos Oliveira",
      *   "email": "carlos@email.com",
      *   "senha": "senha789",
      *   "telefone": "(11) 77777-7777"
      * }
+     * </pre>
+     *
+     * param usuario Dados do novo usuário (ID será gerado automaticamente)
+     * @return ResponseEntity com usuário criado e status HTTP 201
      */
     @PostMapping
     public ResponseEntity<Usuario> criarUsuario(@RequestBody Usuario usuario) {
-        Usuario usuarioNovo = dao.save(usuario); // Salva o novo usuário no banco de dados
-        return ResponseEntity.status(201).body(usuarioNovo); // Retorna o usuário criado com status HTTP 201 (Created)
+        return ResponseEntity.status(201).body(usuarioService.criarUsuario(usuario));
     }
 
     /**
-     * Atualiza um usuário existente com os dados fornecidos no corpo da requisição.
+     * Atualiza um usuário existente ou cria um novo se o ID não existir.
      *
-     * Método HTTP: PUT
-     * Caminho: /usuarios
-     *
-     * @param usuario Objeto `Usuario` contendo os dados atualizados.
-     * @return ResponseEntity<Usuario> - Resposta HTTP contendo o usuário atualizado e o status 201 (Created).
-     *
-     * Exemplo de requisição:
+     * <p><b>Exemplo de atualização:</b></p>
+     * <pre>
      * {
      *   "id": 1,
      *   "nome": "João Silva Atualizado",
      *   "email": "joao.novo@email.com",
-     *   "senha": "senha123",
-     *   "telefone": "(11) 99999-9999"
+     *   "telefone": "(11) 99999-0000"
      * }
+     * </pre>
+     *
+     * <p><b>Exemplo de criação com ID específico:</b></p>
+     * <pre>
+     * {
+     *   "id": 999,
+     *   "nome": "Usuário Teste",
+     *   "email": "teste@email.com",
+     *   "senha": "teste123",
+     *   "telefone": "(11) 12345-6789"
+     * }
+     * </pre>
+     *
+     * param usuario Dados do usuário com ID obrigatório
+     * return ResponseEntity com usuário atualizado/criado e status HTTP 201
      */
     @PutMapping
     public ResponseEntity<Usuario> editarUsuario(@RequestBody Usuario usuario) {
-        Usuario usuarioNovo = dao.save(usuario); // Atualiza o usuário no banco de dados
-        return ResponseEntity.status(201).body(usuarioNovo); // Retorna o usuário atualizado com status HTTP 201 (Created)
+        return ResponseEntity.status(201).body(dao.save(usuario));
     }
 
     /**
-     * Exclui um usuário pelo ID fornecido.
+     * Remove um usuário pelo ID especificado na URL.
      *
-     * Método HTTP: DELETE
-     * Caminho: /usuarios/{id}
+     * <p><b>Exemplo de requisição:</b></p>
+     * <pre>DELETE /usuarios/1</pre>
      *
-     * @param id ID do usuário a ser excluído.
-     * @return ResponseEntity<?> - Resposta HTTP com status 204 (No Content) indicando que o usuário foi excluído.
-     *
-     * Exemplo de requisição:
-     * DELETE /usuarios/1
+     * param id ID do usuário a ser removido
+     * return ResponseEntity vazia com status HTTP 204
      */
     @DeleteMapping("/{id}")
     public ResponseEntity<?> excluirUsuario(@PathVariable Integer id) {
-        dao.deleteById(id); // Exclui o usuário pelo ID
-        return ResponseEntity.status(204).build(); // Retorna status HTTP 204 (No Content)
+        dao.deleteById(id);
+        return ResponseEntity.status(204).build();
     }
 }
