@@ -1,27 +1,36 @@
+// Declaração do pacote onde a classe está localizada.
 package br.com.criandoapi.projeto;
 
+// Importações necessárias para o uso de anotações JPA e Lombok.
 import jakarta.persistence.*;
+import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
 /**
  * Classe que representa a entidade "Usuario" no sistema.
  * Esta classe é mapeada para a tabela "usuarios" no banco de dados.
  * Contém informações básicas de cadastro e autenticação de usuários.
  */
-@Entity
-@Table(name = "usuarios")
+@Data // Anotação do Lombok para gerar automaticamente getters, setters, toString, equals e hashCode.
+@Entity // Indica que esta classe é uma entidade JPA e será mapeada para uma tabela no banco de dados.
+@Table(name = "usuarios") // Especifica o nome da tabela no banco de dados.
 public class Usuario {
 
     /**
      * Identificador único do usuário (chave primária).
      * Gerado automaticamente pelo banco de dados com auto-incremento.
      */
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id")
+    @Id // Indica que este campo é a chave primária da entidade.
+    @GeneratedValue(strategy = GenerationType.IDENTITY) // Estratégia de geração de valor para a chave primária (auto-incremento).
+    @Column(name = "id") // Mapeia o campo para a coluna "id" na tabela.
     private int id;
 
-    @Version
-    @Column(name = "version")
+    /**
+     * Versão do registro, usada para controle de concorrência.
+     */
+    @Version // Anotação para controle de concorrência otimista.
+    @Column(name = "version") // Mapeia o campo para a coluna "version" na tabela.
     private int version;
 
     /**
@@ -29,7 +38,7 @@ public class Usuario {
      * Tamanho máximo: 200 caracteres.
      * Pode ser nulo.
      */
-    @Column(name = "nome", length = 200, nullable = true)
+    @Column(name = "nome", length = 200, nullable = true) // Mapeia o campo para a coluna "nome" na tabela, com tamanho máximo de 200 caracteres e permitindo valores nulos.
     private String nome;
 
     /**
@@ -37,7 +46,7 @@ public class Usuario {
      * Tamanho máximo: 50 caracteres.
      * Pode ser nulo.
      */
-    @Column(name = "email", length = 50, nullable = true)
+    @Column(name = "email", length = 50, nullable = true) // Mapeia o campo para a coluna "email" na tabela, com tamanho máximo de 50 caracteres e permitindo valores nulos.
     private String email;
 
     /**
@@ -46,7 +55,7 @@ public class Usuario {
      * Pode ser nulo.
      * Observação: Em um cenário real, a senha deve ser criptografada.
      */
-    @Column(name = "senha", columnDefinition = "TEXT", nullable = true)
+    @Column(name = "senha", columnDefinition = "TEXT", nullable = true) // Mapeia o campo para a coluna "senha" na tabela, armazenada como texto e permitindo valores nulos.
     private String senha;
 
     /**
@@ -54,88 +63,7 @@ public class Usuario {
      * Tamanho máximo: 15 caracteres.
      * Pode ser nulo.
      */
-    @Column(name = "telefone", length = 15, nullable = true)
+    @Column(name = "telefone", length = 15, nullable = true) // Mapeia o campo para a coluna "telefone" na tabela, com tamanho máximo de 15 caracteres e permitindo valores nulos.
     private String telefone;
 
-    // Métodos Getters e Setters
-
-    /**
-     * Retorna o ID do usuário.
-     * @return int - ID do usuário.
-     */
-    public int getId() {
-        return id;
-    }
-
-    /**
-     * Define o ID do usuário.
-     * @param id - ID do usuário.
-     */
-    public void setId(int id) {
-        this.id = id;
-    }
-
-    /**
-     * Retorna o nome do usuário.
-     * @return String - Nome do usuário.
-     */
-    public String getNome() {
-        return nome;
-    }
-
-    /**
-     * Define o nome do usuário.
-     * @param nome - Nome do usuário.
-     */
-    public void setNome(String nome) {
-        this.nome = nome;
-    }
-
-    /**
-     * Retorna o e-mail do usuário.
-     * @return String - E-mail do usuário.
-     */
-    public String getEmail() {
-        return email;
-    }
-
-    /**
-     * Define o e-mail do usuário.
-     * @param email - E-mail do usuário.
-     */
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
-    /**
-     * Retorna a senha do usuário.
-     * @return String - Senha do usuário.
-     */
-    public String getSenha() {
-        return senha;
-    }
-
-    /**
-     * Define a senha do usuário.
-     * @param senha - Senha do usuário.
-     */
-    public void setSenha(String senha) {
-        this.senha = senha;
-    }
-
-    /**
-     * Retorna o telefone do usuário.
-     * @return String - Telefone do usuário.
-     */
-    public String getTelefone() {
-        return telefone;
-    }
-
-    /**
-     * Define o telefone do usuário.
-     * @param telefone - Telefone do usuário.
-     */
-    public void setTelefone(String telefone) {
-        this.telefone = telefone;
-    }
 }
