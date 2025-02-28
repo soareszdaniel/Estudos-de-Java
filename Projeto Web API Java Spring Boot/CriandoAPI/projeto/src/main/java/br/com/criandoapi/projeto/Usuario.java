@@ -3,6 +3,7 @@ package br.com.criandoapi.projeto;
 
 // Importações necessárias para o uso de anotações JPA e Lombok.
 import jakarta.persistence.*;
+import jakarta.validation.constraints.*;
 import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
@@ -38,7 +39,9 @@ public class Usuario {
      * Tamanho máximo: 200 caracteres.
      * Pode ser nulo.
      */
-    @Column(name = "nome", length = 200, nullable = true) // Mapeia o campo para a coluna "nome" na tabela, com tamanho máximo de 200 caracteres e permitindo valores nulos.
+    @NotBlank(message = "O nome é obrigatório!")
+    @Size(min = 3, message = "O nome deve ter no mínimo 3 caracteres!")
+    @Column(name = "nome", length = 200, nullable = false) // Mapeia o campo para a coluna "nome" na tabela, com tamanho máximo de 200 caracteres e permitindo valores nulos.
     private String nome;
 
     /**
@@ -46,7 +49,9 @@ public class Usuario {
      * Tamanho máximo: 50 caracteres.
      * Pode ser nulo.
      */
-    @Column(name = "email", length = 50, nullable = true) // Mapeia o campo para a coluna "email" na tabela, com tamanho máximo de 50 caracteres e permitindo valores nulos.
+    @Email(message = "Insira um email válido!")
+    @NotBlank(message = "O email é obrigatório!")
+    @Column(name = "email", length = 50, nullable = false) // Mapeia o campo para a coluna "email" na tabela, com tamanho máximo de 50 caracteres e permitindo valores nulos.
     private String email;
 
     /**
@@ -55,7 +60,8 @@ public class Usuario {
      * Pode ser nulo.
      * Observação: Em um cenário real, a senha deve ser criptografada.
      */
-    @Column(name = "senha", columnDefinition = "TEXT", nullable = true) // Mapeia o campo para a coluna "senha" na tabela, armazenada como texto e permitindo valores nulos.
+    @NotBlank(message = "A senha é obrigatória!")
+    @Column(name = "senha", columnDefinition = "TEXT", nullable = false) // Mapeia o campo para a coluna "senha" na tabela, armazenada como texto e permitindo valores nulos.
     private String senha;
 
     /**
@@ -63,7 +69,8 @@ public class Usuario {
      * Tamanho máximo: 15 caracteres.
      * Pode ser nulo.
      */
-    @Column(name = "telefone", length = 15, nullable = true) // Mapeia o campo para a coluna "telefone" na tabela, com tamanho máximo de 15 caracteres e permitindo valores nulos.
+    @NotBlank(message = "O telefone é obrigatório!")
+    @Column(name = "telefone", length = 15, nullable = false) // Mapeia o campo para a coluna "telefone" na tabela, com tamanho máximo de 15 caracteres e permitindo valores nulos.
     private String telefone;
 
 }

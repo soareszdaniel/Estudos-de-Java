@@ -1,11 +1,16 @@
 package br.com.criandoapi.projeto;
 
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.FieldError;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 /**
@@ -80,7 +85,7 @@ public class UsuarioController {
      * return ResponseEntity com o usuário criado e status HTTP 201 (Created).
      */
     @PostMapping
-    public ResponseEntity<Usuario> criarUsuario(@RequestBody Usuario usuario) {
+    public ResponseEntity<Usuario> criarUsuario(@Valid @RequestBody Usuario usuario) {
         return ResponseEntity.status(201).body(usuarioService.criarUsuario(usuario));
     }
 
@@ -112,7 +117,7 @@ public class UsuarioController {
      * return ResponseEntity com o usuário atualizado/criado e status HTTP 201 (Created).
      */
     @PutMapping
-    public ResponseEntity<Usuario> editarUsuario(@RequestBody Usuario usuario) {
+    public ResponseEntity<Usuario> editarUsuario(@Valid @RequestBody Usuario usuario) {
         return ResponseEntity.status(201).body(usuarioService.editarUsuario(usuario));
     }
 
@@ -147,12 +152,33 @@ public class UsuarioController {
      *         ou HTTP 401 (Unauthorized) se a senha for inválida.
      */
     @PostMapping("/login")
-    public ResponseEntity<Usuario> validarSenha(@RequestBody Usuario usuario) {
+    public ResponseEntity<Usuario> validarSenha(@Valid @RequestBody Usuario usuario) {
         Boolean valido = usuarioService.validarSenha(usuario);
         if (!valido) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         } else {
             return ResponseEntity.status(200).build();
         }
+    }
+
+    /**
+     * Manipula exceções de validação de argumentos de método.
+     *
+     * <p>Este método é acionado quando uma validação de argumento falha,
+     * retornando um mapa com os campos inválidos e as mensagens de erro correspondentes.</p>
+     *
+     * param ex Exceção lançada quando a validação falha.
+     * return Mapa contendo os nomes dos campos inválidos e as mensagens de erro.
+     */
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public Map<String, String> handleValidationException(MethodArgumentNotValidException ex){
+        Map<String, String> errors = new HashMap<>();
+        ex.getBindingResult().getAllErrors().forEach((error) -> {
+            String fieldName = ((FieldError) error).getField();
+            String errorMessage = error.getDefaultMessage();
+            errors.put(fieldName, errorMessage);
+        });
+        return errors;
     }
 }
