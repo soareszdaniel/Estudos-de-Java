@@ -1,6 +1,7 @@
 package br.com.criandoapi.projeto;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -17,6 +18,7 @@ import java.util.Optional;
  *   <li>POST /usuarios - Cria um novo usuário</li>
  *   <li>PUT /usuarios - Atualiza ou cria um usuário (com ID especificado)</li>
  *   <li>DELETE /usuarios/{id} - Exclui um usuário pelo ID</li>
+ *   <li>POST /usuarios/login - Valida a senha de um usuário</li>
  * </ul>
  *
  * <p>Permite acesso CORS de qualquer origem.</p>
@@ -26,15 +28,13 @@ import java.util.Optional;
 @RequestMapping("/usuarios")
 public class UsuarioController {
 
-    @Autowired
-    private IUsuario dao; // Repositório direto para operações de banco de dados
-
-    private final UsuarioService usuarioService; // Camada de serviço para regras de negócio
+    // Camada de serviço para regras de negócio relacionadas a usuários
+    private final UsuarioService usuarioService;
 
     /**
      * Construtor para injeção de dependência do serviço.
      *
-     * param usuarioService Serviço contendo a lógica de negócio para usuários
+     * param usuarioService Serviço contendo a lógica de negócio para usuários.
      */
     public UsuarioController(UsuarioService usuarioService) {
         this.usuarioService = usuarioService;
@@ -56,7 +56,7 @@ public class UsuarioController {
      * ]
      * </pre>
      *
-     * return ResponseEntity com lista de usuários e status HTTP 200
+     * return ResponseEntity com lista de usuários e status HTTP 200 (OK).
      */
     @GetMapping
     public ResponseEntity<List<Usuario>> listaUsuarios() {
@@ -76,8 +76,8 @@ public class UsuarioController {
      * }
      * </pre>
      *
-     * param usuario Dados do novo usuário (ID será gerado automaticamente)
-     * @return ResponseEntity com usuário criado e status HTTP 201
+     * param usuario Dados do novo usuário (ID será gerado automaticamente).
+     * return ResponseEntity com o usuário criado e status HTTP 201 (Created).
      */
     @PostMapping
     public ResponseEntity<Usuario> criarUsuario(@RequestBody Usuario usuario) {
@@ -108,12 +108,12 @@ public class UsuarioController {
      * }
      * </pre>
      *
-     * param usuario Dados do usuário com ID obrigatório
-     * return ResponseEntity com usuário atualizado/criado e status HTTP 201
+     * param usuario Dados do usuário com ID obrigatório.
+     * return ResponseEntity com o usuário atualizado/criado e status HTTP 201 (Created).
      */
     @PutMapping
     public ResponseEntity<Usuario> editarUsuario(@RequestBody Usuario usuario) {
-        return ResponseEntity.status(201).body(dao.save(usuario));
+        return ResponseEntity.status(201).body(usuarioService.editarUsuario(usuario));
     }
 
     /**
@@ -122,12 +122,37 @@ public class UsuarioController {
      * <p><b>Exemplo de requisição:</b></p>
      * <pre>DELETE /usuarios/1</pre>
      *
-     * param id ID do usuário a ser removido
-     * return ResponseEntity vazia com status HTTP 204
+     * param id ID do usuário a ser removido.
+     * return ResponseEntity vazia com status HTTP 204 (No Content).
      */
     @DeleteMapping("/{id}")
     public ResponseEntity<?> excluirUsuario(@PathVariable Integer id) {
-        dao.deleteById(id);
+        usuarioService.excluirUsuario(id);
         return ResponseEntity.status(204).build();
+    }
+
+    /**
+     * Valida a senha de um usuário.
+     *
+     * <p><b>Exemplo de requisição:</b></p>
+     * <pre>
+     * {
+     *   "email": "joao@email.com",
+     *   "senha": "senha123"
+     * }
+     * </pre>
+     *
+     * param usuario Objeto contendo email e senha do usuário.
+     * return ResponseEntity com status HTTP 200 (OK) se a senha for válida,
+     *         ou HTTP 401 (Unauthorized) se a senha for inválida.
+     */
+    @PostMapping("/login")
+    public ResponseEntity<Usuario> validarSenha(@RequestBody Usuario usuario) {
+        Boolean valido = usuarioService.validarSenha(usuario);
+        if (!valido) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        } else {
+            return ResponseEntity.status(200).build();
+        }
     }
 }
