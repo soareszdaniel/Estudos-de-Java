@@ -1,5 +1,6 @@
 package br.com.criandoapi.projeto;
 
+import jakarta.validation.Valid;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -95,5 +96,16 @@ public class UsuarioService {
 
         // Compara a senha fornecida com a senha armazenada
         return passwordEncoder.matches(usuario.getSenha(), senhaArmazenada);
+    }
+
+    public Token gerarToken(@Valid UsuarioDto usuario) {
+        Usuario user = repository.findBynomeOrEmail(usuario.getNome(), usuario.getEmail());
+        if (user != null){
+            boolean valid = passwordEncoder.matches(usuario.getSenha(), user.getSenha());
+            if (valid){
+                return new Token(TokenUtil.createToken(user));
+            }
+        }
+        return null;
     }
 }

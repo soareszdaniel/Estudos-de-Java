@@ -30,7 +30,7 @@ public class SecurityConfig {
         http
                 .csrf().disable() // Desabilita a proteção CSRF (Cross-Site Request Forgery)
                 .authorizeHttpRequests() // Inicia a configuração das regras de autorização
-                .requestMatchers(HttpMethod.GET, "/usuarios").permitAll() // Permite acesso público ao endpoint GET /usuarios
+                .requestMatchers(HttpMethod.POST, "/usuarios/login").permitAll() // Permite acesso público ao endpoint GET /usuarios
                 .anyRequest().authenticated() // Exige autenticação para qualquer outra requisição
                 .and()
                 .cors(); // Habilita o CORS (Cross-Origin Resource Sharing)

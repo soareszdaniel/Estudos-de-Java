@@ -152,12 +152,12 @@ public class UsuarioController {
      *         ou HTTP 401 (Unauthorized) se a senha for inválida.
      */
     @PostMapping("/login")
-    public ResponseEntity<Usuario> validarSenha(@Valid @RequestBody Usuario usuario) {
-        Boolean valido = usuarioService.validarSenha(usuario);
-        if (!valido) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+    public ResponseEntity<Token> logar(@Valid @RequestBody UsuarioDto usuario) {
+        Token token = usuarioService.gerarToken(usuario);
+        if (token != null) {
+            return ResponseEntity.ok(token);
         } else {
-            return ResponseEntity.status(200).build();
+            return ResponseEntity.status(403).build();
         }
     }
 

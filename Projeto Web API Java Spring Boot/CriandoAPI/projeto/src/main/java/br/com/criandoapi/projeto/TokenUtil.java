@@ -80,7 +80,7 @@ public class TokenUtil {
 
     /**
      * Valida o token JWT presente no cabeçalho da requisição HTTP.
-     *
+     * <p>
      * param request O objeto HttpServletRequest que contém o cabeçalho com o token.
      * return Um objeto UsernamePasswordAuthenticationToken se o token for válido, ou null caso contrário.
      */

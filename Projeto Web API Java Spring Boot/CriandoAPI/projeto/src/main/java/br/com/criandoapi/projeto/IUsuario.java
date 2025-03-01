@@ -10,6 +10,7 @@ import org.springframework.data.repository.CrudRepository;
  * param <Integer> Tipo da chave primária da entidade `Usuario`.
  */
 public interface IUsuario extends JpaRepository<Usuario, Integer> {
+    public Usuario findBynomeOrEmail(String nome, String email);
 
     /**
      * Herda métodos CRUD básicos do `CrudRepository`, como:
